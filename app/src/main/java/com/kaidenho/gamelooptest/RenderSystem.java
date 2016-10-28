@@ -8,6 +8,8 @@ import android.util.Log;
  * Created by Kaiden Ho on 2016-09-27.
  */
 public class RenderSystem {
+    private final static String TAG = RenderSystem.class.getSimpleName();
+
     private final static int DRAW_QUEUE_COUNT = 2;
 
     private RenderObjectManager[] mRenderQueues;
@@ -23,8 +25,10 @@ public class RenderSystem {
 
     public void swap(GameRenderer renderer) {
         renderer.setRenderQueue(mRenderQueues[mCurrentQueue]);
-        clearQueue();
+        //Log.v(TAG, "Current Queue = " + mCurrentQueue);
+
         mCurrentQueue = (mCurrentQueue + 1) % DRAW_QUEUE_COUNT;
+        clearQueue();
     }
 
     public void add(GameObject object) {
@@ -34,4 +38,6 @@ public class RenderSystem {
     public void clearQueue() {
         mRenderQueues[mCurrentQueue].clear();
     }
+
+    public int getSize() { return mRenderQueues[mCurrentQueue].getSize(); }
 }

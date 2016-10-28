@@ -6,6 +6,9 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -28,7 +31,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
     private Context mContext;
 
+    private GameObject player;
+
     public GameRenderer(Context context) {
+        Log.v(TAG, "GameRenderer created");
+
         mContext = context;
         mDrawQueue = new RenderObjectManager();
     }
@@ -39,12 +46,10 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glUseProgram(ShaderInfo.sp_Image);
 
         // Clear Screen and Depth Buffer
-        //GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
-        // Black Background
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
         if (mDrawQueue != null) {
+            //player.draw(mtrxProjectionAndView);
             mDrawQueue.draw(mtrxProjectionAndView);
         }
     }
@@ -73,12 +78,15 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mtrxProjectionAndView, 0, mtrxProjection, 0, mtrxView, 0);
+
+        // Without this line of code, nothing appear on the screen TODO: Why?
+        // The only part of this that seems to be necessary is the instatiation of a new GameObject
+        new Player(mContext, "RendererPlayer");
     }
 
-    public void onSurfaceCreated (GL10 gl, EGLConfig config) {
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         mScreenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
         mScreenHeight = mContext.getResources().getDisplayMetrics().heightPixels;
-
 
         // Set the clear color to black. TODO: Remove this later once there's an actual background
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
@@ -98,12 +106,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         // Enable blending
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
-        Log.d(TAG, "onSurfaceCreated");
     }
 
-    public void setRenderQueue(RenderObjectManager renderQueue) {
-        if (renderQueue == null) throw new NullPointerException();
-        mDrawQueue = renderQueue;
+    public synchronized void  setRenderQueue(RenderObjectManager renderQueue) {
+        if (renderQueue == null) { throw new NullPointerException(); }
+        mDrawQueue.copy(renderQueue);
+        //Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
     }
 }

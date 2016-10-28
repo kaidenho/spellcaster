@@ -15,11 +15,12 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**
- * GameObject extends BaseObject add draw()
+ * GameObject is a drawable BaseObject.
  *
  * Created by Kaiden Ho on 2016-10-02.
  */
 public class GameObject extends BaseObject {
+    private final static String TAG = GameObject.class.getSimpleName();
 
     // Buffers
     private FloatBuffer mVertexBuffer;
@@ -30,35 +31,46 @@ public class GameObject extends BaseObject {
     private final static short[] mIndices = new short[]{0, 1, 2, 0, 2, 3};
 
     // Image source
-    private final int bitmapSource = R.drawable.mage;
+    private final int mBitmapSource;
 
     // Location
     private Rect mLocationRect = new Rect();
 
-    // Touch state variables TODO: move to parent class?
-    private float originX;
-    private float originY;
-    private boolean movementSwipe = false;
-    private static int swipeDistance = 200;
-
     // Inherited contexts
     private Context mContext;
 
-    public GameObject (Context context) {
-        mContext = context;
+    private Scaling mScaling;
 
-        // Initial location TODO: fix this. I'm pretty sure the rounding is off
-        mLocationRect.left = (int)(200F);
-        mLocationRect.bottom = 0;
-        mLocationRect.right = (int)(400F);
-        mLocationRect.top = (int)(200F);
+    // Debug
+    private String mName;
 
+    /**
+     *
+     * @param bitmapSource
+     * @param locationRect pass in initial location. Coordinates shouldn't have been scaled.
+     * @param context
+     * @param name
+     */
+    public GameObject (int bitmapSource, Rect locationRect, Context context, String name) {
+        Log.v(TAG, "GameObject created");
+
+        setContext(context);
+        mScaling = new Scaling(mContext);
+        mBitmapSource = bitmapSource;
+        mName = name;
+
+        // Initial location
+        mLocationRect = locationRect;
+        locationRect.left = (int)(locationRect.left * mScaling.gameUnit);
+        locationRect.top = (int)(locationRect.top * mScaling.gameUnit);
+        locationRect.right = (int)(locationRect.right * mScaling.gameUnit);
+        locationRect.bottom = (int)(locationRect.bottom * mScaling.gameUnit);
 
         // Create the primitive to draw on
         mVertexBuffer = updateLocation(mLocationRect);
 
         // Create the image information and retrieve our image from the resources.
-        mTextureBuffer = setTextureBuffer(mTextureBuffer, context, bitmapSource);
+        mTextureBuffer = setTextureBuffer(mTextureBuffer, mContext, mBitmapSource);
 
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(mIndices.length * 2);
@@ -69,8 +81,6 @@ public class GameObject extends BaseObject {
     }
 
     public void draw(float[] mtrxProjectionAndView) {
-
-
         // get handle to vertex shader's vPosition member
         int mPositionHandle = GLES20.glGetAttribLocation(ShaderInfo.sp_Image, "vPosition");
 
@@ -107,11 +117,14 @@ public class GameObject extends BaseObject {
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mTexCoordLoc);
+
+        //Log.d(TAG,"Drawing " + mName + " at " + mLocationRect.left + ", " + mLocationRect.top + ", " + mLocationRect.right + ", " + mLocationRect.bottom);
     }
 
     @Override
     public void update(long timeDelta){
-
+        BaseObject.renderSystem.add(this);
+        //Log.d(TAG,"RenderQueue size is " + BaseObject.renderSystem.getSize());
     }
 
     public FloatBuffer setTextureBuffer(FloatBuffer mTextureBuffer, Context context, int resourceId)
@@ -174,17 +187,55 @@ public class GameObject extends BaseObject {
         mVertexBuffer.put(mVertices);
         mVertexBuffer.position(0);
 
-        Log.d("Scaling", "Location - " + mLocationRect.left + ", " + mLocationRect.right);
+        //Log.v(TAG, "Location - " + mLocationRect.left + ", " + mLocationRect.right);
 
         return mVertexBuffer;
     }
 
-    public boolean within(float x, float y, Rect rect) {
-        Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
-        if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
-            return false;
+    ///
+    /// Getters and setters
+    ///
+
+    /**
+     * @param context the context to set, cannot be null
+     */
+    private final void setContext(final Context context) {
+        if (context == null) {
+            throw new NullPointerException();
         }
-        return true;
+        mContext = context;
     }
+
+    /**
+     * @return the context, never null
+     */
+    protected Context getContext() {
+        return mContext;
+    }
+
+    public Rect getLocationRect() {
+        return mLocationRect;
+    }
+
+    protected void setLocationRect(Rect newLocation) {
+        mLocationRect = newLocation;
+    }
+
+    public Scaling getScaling() {
+        return mScaling;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public FloatBuffer getVertexBuffer() {
+        return mVertexBuffer;
+    }
+
+    public void setVertexBuffer(FloatBuffer vertexBuffer) {
+        mVertexBuffer = vertexBuffer;
+    }
+
 
 }

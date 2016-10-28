@@ -1,5 +1,7 @@
 package com.kaidenho.gamelooptest;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -11,6 +13,7 @@ public class RenderObjectManager extends ObjectManager {
     public void draw(float[] mtrxProjectionAndView) {
         for (int i = 0; i < mObjects.size(); i++) {
             ((GameObject)mObjects.get(i)).draw(mtrxProjectionAndView);
+            //Log.d(TAG,"Objects being drawn - " + mObjects.size());
         }
     }
 
@@ -18,7 +21,9 @@ public class RenderObjectManager extends ObjectManager {
     public void add(BaseObject object) {
         super.add(object);
 
-        if (object.getClass() != GameObject.class) {
+        //Log.v(TAG, "RenderMangaer size is " + mObjects.size());
+
+        if (!(object instanceof GameObject)) {
             throw new IllegalArgumentException("Object added to RenderManager not a GameObject");
         }
     }

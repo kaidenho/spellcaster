@@ -3,6 +3,7 @@ package com.kaidenho.gamelooptest;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -12,8 +13,8 @@ import android.view.WindowManager;
  *
  * When this activity starts, gameplay begins.
  */
-public class MainActivity extends Activity {
-    private final static String TAG = MainActivity.class.getSimpleName();
+public class GameActivity extends Activity {
+    private final static String TAG = GameActivity.class.getSimpleName();
 
     // Game will sort UI events and sets up high level game objects and systems
     private Game mGame;
@@ -23,6 +24,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v(TAG, "onCreate called");
         super.onCreate(savedInstanceState);
 
         mGame = new Game(this);
@@ -36,7 +38,32 @@ public class MainActivity extends Activity {
 
         // Set up GameManager, Renderer and GameRunnable
         mGame.bootstrap();
-        Log.d(TAG,"Renderer created");
         mSurfaceView.setRenderer(mGame.getRenderer());
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mGame.handleTouchEvent(event);
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            Log.d("Main Activity", "Touch event at " + event.getX() + ", " + event.getY());
+        }
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSurfaceView.onResume();
+        mGame.onResume();
+        Log.d(TAG, "Resumed");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSurfaceView.onPause();
+        mGame.onPause();
+        Log.d(TAG, "Paused");
     }
 }

@@ -1,5 +1,6 @@
 package com.kaidenho.gamelooptest;
 
+import android.renderscript.BaseObj;
 import android.util.Log;
 import android.widget.BaseExpandableListAdapter;
 
@@ -24,7 +25,6 @@ public class ObjectManager extends BaseObject {
 
     @Override
     public void update(long timeDelta) {
-
         for (int i = 0; i < mObjects.size(); i++) {
             mObjects.get(i).update(timeDelta);
         }
@@ -37,11 +37,27 @@ public class ObjectManager extends BaseObject {
         mObjects.add(object);
     }
 
-    public void copy(ObjectManager manager) {
-        Collections.copy(mObjects, manager.mObjects);
+    // TODO: Change this so that GameRenderer can just read off of a single render queue.
+    // TODO: This will probably require having a drawlock and a function callback to swap the queues once rendering is completed
+    public void copy(ObjectManager source) {
+        for (int i = 0; i < source.mObjects.size(); i++) {
+            try {
+                mObjects.set(i, source.mObjects.get(i));
+            } catch (IndexOutOfBoundsException e) {
+                mObjects.add(i, source.mObjects.get(i));
+            }
+        }
     }
 
     public void clear(){
         mObjects.clear();
+    }
+
+    public int getSize() {
+        return mObjects.size();
+    }
+
+    public BaseObject get(int index) {
+        return mObjects.get(index);
     }
 }

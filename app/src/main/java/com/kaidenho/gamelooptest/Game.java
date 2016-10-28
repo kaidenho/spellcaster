@@ -73,15 +73,19 @@ public class Game {
     }
 
     public void onPause() {
+        Log.v(TAG, "onPause +");
         if(mBootstrapComplete) {
             mGameRunnable.pauseGame();
         }
+        Log.v(TAG, "onPause -");
+
     }
     public void onResume() {
+        Log.v(TAG, "onResume +");
         if (mGameRunnable != null) {
-            //TODO: This is causing as error
-          //  mGameRunnable.resumeGame();
+            mGameRunnable.resumeGame();
         }
+        Log.v(TAG, "onResume -");
     }
 
     public GameRenderer getRenderer() {

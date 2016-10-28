@@ -24,7 +24,7 @@ public class GameActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate called");
+        Log.v(TAG, "onCreate +");
         super.onCreate(savedInstanceState);
 
         mGame = new Game(this);
@@ -39,6 +39,27 @@ public class GameActivity extends Activity {
         // Set up GameManager, Renderer and GameRunnable
         mGame.bootstrap();
         mSurfaceView.setRenderer(mGame.getRenderer());
+        Log.v(TAG, "onCreate -");
+    }
+
+    @Override
+    protected void onResume() {
+        Log.v(TAG, "onResume +");
+        super.onResume();
+        // Resume the surface view first and then the game
+        mSurfaceView.onResume();
+        mGame.onResume();
+        Log.v(TAG, "onResume -");
+    }
+
+    @Override
+    protected void onPause() {
+        Log.v(TAG, "onPause +");
+        super.onPause();
+        // Pause the game first then the surface view
+        mGame.onPause();
+        mSurfaceView.onPause();
+        Log.v(TAG, "onPause -");
     }
 
     @Override
@@ -51,19 +72,4 @@ public class GameActivity extends Activity {
         return true;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mSurfaceView.onResume();
-        mGame.onResume();
-        Log.d(TAG, "Resumed");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mSurfaceView.onPause();
-        mGame.onPause();
-        Log.d(TAG, "Paused");
-    }
 }

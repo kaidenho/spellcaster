@@ -19,66 +19,76 @@ public class GameRunnable implements Runnable {
     private Game mGameRoot;
 
     private boolean mRunning = true;
-    private boolean mPaused = false;
-    private Object mPauseLock;
+    private boolean mPaused = true;
+    private Object mPauseLock = new Object();
 
     public GameRunnable(Game gameRoot) {
         mGameRoot = gameRoot;
     }
 
     public void run() {
-        long updateDuration = 0;
+        // Since this loop will later wait on the lock object, it must first acquire the lock.
+        synchronized (mPauseLock) {
+            long updateDuration = 0;
+            long currentFrameStart = SystemClock.uptimeMillis();
+            long previousFrameStart = currentFrameStart;
 
-        long currentFrameStart = SystemClock.uptimeMillis();
-        long previousFrameStart = currentFrameStart;
+            while(mRunning) {
+                // Time at start
+                currentFrameStart = SystemClock.uptimeMillis();
 
-        while(mRunning) {
-            // Time at start
-            currentFrameStart = SystemClock.uptimeMillis();
+                // Calls update on all the current game objects. See ObjectManager
+                mGameRoot.getGameManager().update(currentFrameStart - previousFrameStart);
+                //Log.v(TAG, "Object Update Count is " + mGameManager.getSize());
 
-            // Calls update on all the current game objects. See ObjectManager
-            mGameRoot.getGameManager().update(currentFrameStart - previousFrameStart);
-            //Log.v(TAG, "Object Update Count is " + mGameManager.getSize());
-
-            if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {
-                //Log.d(TAG, "Collision detected");
-            }
-
-            // After updating the objects location
-            BaseObject.renderSystem.swap(mGameRoot.getRenderer());
-
-            updateDuration = SystemClock.uptimeMillis() - currentFrameStart;
-
-            if (updateDuration < FRAME_DURATION_MILLIS) {
-                try {
-                    Thread.sleep(FRAME_DURATION_MILLIS - updateDuration);
-                } catch (InterruptedException e) {
-                    Log.d(TAG,"Game Runnable Sleep Interrupted");
+                if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {
+                    //Log.d(TAG, "Collision detected");
                 }
-            }
-            while (mPaused) {
-                try {
-                    mPauseLock.wait();
-                } catch (InterruptedException e) {
-                    // No big deal if this wait is interrupted.
-                }
-            }
 
-            previousFrameStart = currentFrameStart;
+                // After updating the objects location
+                BaseObject.renderSystem.swap(mGameRoot.getRenderer());
+
+                updateDuration = SystemClock.uptimeMillis() - currentFrameStart;
+
+                if (updateDuration < FRAME_DURATION_MILLIS) {
+                    try {
+                        Thread.sleep(FRAME_DURATION_MILLIS - updateDuration);
+                    } catch (InterruptedException e) {
+                        Log.d(TAG,"Game Runnable Sleep Interrupted");
+                    }
+                }
+                while (mPaused) {
+                    try {
+                        mPauseLock.wait();
+                    } catch (InterruptedException e) {
+                        // No big deal if this wait is interrupted.
+                    }
+                }
+
+                previousFrameStart = currentFrameStart;
+            }
         }
     }
 
+    /**
+     * Pauses the game thread. This is called when the activity is paused.
+     */
     public void pauseGame() {
-        synchronized (mPauseLock) {
-            mPaused = true;
-        }
+        Log.v(TAG, "pauseGame +");
+        mPaused = true;
+        Log.v(TAG, "pauseGame -");
     }
 
+    /**
+     * Resumes the game. This is called when the activity is resumed. Based on the Android
+     * activity lifecycle, we also expect this to be called when the activity is creates.
+     */
     public void resumeGame() {
+        Log.v(TAG, "resumeGame +");
         synchronized (mPauseLock) {
-            Log.d(TAG, "resumeGame() was called");
             mPaused = false;
             mPauseLock.notifyAll();
         }
+        Log.v(TAG, "resumeGame -");
     }
 }

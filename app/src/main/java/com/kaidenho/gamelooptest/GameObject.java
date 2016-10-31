@@ -31,7 +31,7 @@ public class GameObject extends BaseObject {
     private final static short[] mIndices = new short[]{0, 1, 2, 0, 2, 3};
 
     // Image source
-    private final int mBitmapSource;
+    private int mBitmapSource;
 
     // Location
     private Rect mLocationRect = new Rect();
@@ -60,11 +60,11 @@ public class GameObject extends BaseObject {
         mName = name;
 
         // Initial location
-        mLocationRect = locationRect;
         locationRect.left = (int)(locationRect.left * mScaling.gameUnit);
         locationRect.top = (int)(locationRect.top * mScaling.gameUnit);
         locationRect.right = (int)(locationRect.right * mScaling.gameUnit);
         locationRect.bottom = (int)(locationRect.bottom * mScaling.gameUnit);
+        mLocationRect = locationRect;
 
         // Create the primitive to draw on
         mVertexBuffer = updateLocation(mLocationRect);
@@ -127,7 +127,7 @@ public class GameObject extends BaseObject {
         //Log.d(TAG,"RenderQueue size is " + BaseObject.renderSystem.getSize());
     }
 
-    public FloatBuffer setTextureBuffer(FloatBuffer mTextureBuffer, Context context, int resourceId)
+    private FloatBuffer setTextureBuffer(FloatBuffer mTextureBuffer, Context context, int resourceId)
     {
 
         // Set the texture buffer
@@ -169,7 +169,7 @@ public class GameObject extends BaseObject {
         return mTextureBuffer;
     }
 
-    public FloatBuffer updateLocation(Rect mLocationRect) {
+    protected FloatBuffer updateLocation(Rect mLocationRect) {
         FloatBuffer mVertexBuffer;
         float [] mVertices = new float[12];
 

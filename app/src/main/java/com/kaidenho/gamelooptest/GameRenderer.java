@@ -111,6 +111,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     public synchronized void  setRenderQueue(RenderObjectManager renderQueue) {
         if (renderQueue == null) { throw new NullPointerException(); }
         mDrawQueue.copy(renderQueue);
-        //Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
+        Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
     }
 }

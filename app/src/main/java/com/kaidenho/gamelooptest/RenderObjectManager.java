@@ -27,4 +27,10 @@ public class RenderObjectManager extends ObjectManager {
             throw new IllegalArgumentException("Object added to RenderManager not a GameObject");
         }
     }
+
+    public void printAll() {
+        for (int i = 0; i < mObjects.size(); i++) {
+            Log.d(TAG, "The " + i + " object is " + mObjects.get(i).getClass().getSimpleName());
+        }
+    }
 }

@@ -47,7 +47,7 @@ public class GameObject extends BaseObject {
     /**
      *
      * @param bitmapSource
-     * @param locationRect pass in initial location. Coordinates shouldn't have been scaled.
+     * @param locationRect pass in initial location. Coordinates should be in scaled units.
      * @param context
      * @param name
      */

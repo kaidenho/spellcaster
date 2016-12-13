@@ -1,12 +1,9 @@
 package com.kaidenho.gamelooptest;
 
-import android.content.Context;
-import android.graphics.Rect;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
-
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Kaiden Ho on 2016-09-27.
@@ -21,6 +18,7 @@ public class GameRunnable implements Runnable {
     private boolean mRunning = true;
     private boolean mPaused = true;
     private Object mPauseLock = new Object();
+
 
     public GameRunnable(Game gameRoot) {
         mGameRoot = gameRoot;
@@ -41,8 +39,14 @@ public class GameRunnable implements Runnable {
                 mGameRoot.getGameManager().update(currentFrameStart - previousFrameStart);
                 //Log.v(TAG, "Object Update Count is " + mGameManager.getSize());
 
+                // TODO: why aren't the obstacles and spels disappearing at the right time?
+                mGameRoot.getMagicManager().checkCollisions(mGameRoot.getObstacleManager());
+
                 if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {
-                    //Log.d(TAG, "Collision detected");
+                    Intent intent = new Intent(mGameRoot.getContext(), GameOverActivity.class);
+                    Activity activity = (Activity)mGameRoot.getContext();
+                    Log.d(TAG, "Game Over");
+                    activity.startActivity(intent);
                 }
 
                 // After updating the objects location
@@ -57,15 +61,17 @@ public class GameRunnable implements Runnable {
                         Log.d(TAG,"Game Runnable Sleep Interrupted");
                     }
                 }
+
+                previousFrameStart = currentFrameStart;
+
                 while (mPaused) {
                     try {
                         mPauseLock.wait();
+                        previousFrameStart = SystemClock.uptimeMillis();
                     } catch (InterruptedException e) {
                         // No big deal if this wait is interrupted.
                     }
                 }
-
-                previousFrameStart = currentFrameStart;
             }
         }
     }

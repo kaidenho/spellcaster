@@ -17,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class GameRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = GameRenderer.class.getSimpleName();
+    private int mDebugCounter = 0;
 
     private RenderObjectManager mDrawQueue;
 
@@ -51,6 +52,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         if (mDrawQueue != null) {
             //player.draw(mtrxProjectionAndView);
             mDrawQueue.draw(mtrxProjectionAndView);
+            //mDebugCounter++;
+            if(mDebugCounter > 100) {
+                mDrawQueue.printAll();
+                mDebugCounter = 0;
+            }
         }
     }
 
@@ -111,6 +117,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     public synchronized void  setRenderQueue(RenderObjectManager renderQueue) {
         if (renderQueue == null) { throw new NullPointerException(); }
         mDrawQueue.copy(renderQueue);
-        Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
+        //Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
     }
 }

@@ -28,6 +28,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mGame = new Game(this);
+        BaseObject.gameSystem = mGame;
 
         // make the window fullscreen
         requestWindowFeature(Window.FEATURE_NO_TITLE);

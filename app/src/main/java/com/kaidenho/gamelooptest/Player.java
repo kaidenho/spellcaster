@@ -28,7 +28,6 @@ public class Player extends GameObject {
 
     public Player (Context context, String name) {
         super(PLAYER_IMAGE_SOURCE, new Rect(200, 200, 400, 0), context, name);
-
     }
 
     public void onTouch(MotionEvent event) {
@@ -45,7 +44,6 @@ public class Player extends GameObject {
             originY = y;
         }
 
-        // TODO: Make absolute values relative to screen size
         if (event.getAction() == MotionEvent.ACTION_UP) {
             if (y > getLocationRect().bottom && y < getLocationRect().top) {
                 if (x < originX - swipeDistance) {
@@ -61,11 +59,19 @@ public class Player extends GameObject {
                     changeLocation = true;
                 }
             }
+            if (y > getLocationRect().top && y > originY + swipeDistance) {
+                // Up swipe for shoot
+                this.shoot();
+            }
         }
 
         if (changeLocation) {
             setVertexBuffer(updateLocation(getLocationRect()));
         }
+    }
+
+    private void shoot() {
+        BaseObject.gameSystem.getMagicManager().shoot();
     }
 
     public boolean checkCollisions(ObjectManager collection) {
@@ -74,13 +80,10 @@ public class Player extends GameObject {
                 Rect locationRect = ((GameObject) collection.get(i)).getLocationRect();
 
                 // This collision logic is column-based
-                if (locationRect.left >= getLocationRect().left && locationRect.right <= getLocationRect().right) {
-                    if ((locationRect.top >= getLocationRect().bottom && locationRect.top <= getLocationRect().top)
-                            || (locationRect.bottom <= getLocationRect().top && locationRect.bottom >= getLocationRect().bottom)) {
+                if (locationRect.left >= getLocationRect().left && locationRect.right <= getLocationRect().right && locationRect.bottom <= getLocationRect().top && locationRect.bottom >= getLocationRect().bottom) {
                         Log.d(TAG, "Object Collided with is " + i + " out of " + collection.getSize());
                         mHasCollided = true;
                         return true;
-                    }
                 }
             }
         }
@@ -94,4 +97,5 @@ public class Player extends GameObject {
         }
         return true;
     }
+
 }

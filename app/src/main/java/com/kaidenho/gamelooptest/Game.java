@@ -1,8 +1,8 @@
 package com.kaidenho.gamelooptest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.MotionEvent;
 
 /**
@@ -25,8 +25,10 @@ public class Game {
     private Context mContext;
 
     // TODO: UN-HARDCODE THIS
-    private Player player;
-    private ObstacleManager obstacleManager;
+    private Player mPlayer;
+    private ObstacleManager mObstacleManager;
+    private MagicManager mMagicManager;
+    private ScoreDisplay scoreDisplay;
 
     public Game (Context context) {
         Log.v(TAG, "Game created");
@@ -40,11 +42,18 @@ public class Game {
         mGameManager = new ObjectManager();
 
         // TODO: Move this to the gamethread?
-        player = new Player(mContext, "GamePlayer");
-        mGameManager.add(player);
+        mPlayer = new Player(mContext, "GamePlayer");
+        mGameManager.add(mPlayer);
 
-        obstacleManager = new ObstacleManager(mContext);
-        mGameManager.add(obstacleManager);
+        mObstacleManager = new ObstacleManager(mContext);
+        mGameManager.add(mObstacleManager);
+
+        mMagicManager = new MagicManager(mContext, mPlayer);
+        mGameManager.add(mMagicManager);
+
+        scoreDisplay = new ScoreDisplay();
+        //mGameManager.add(scoreDisplay);
+        // TODO: add score display
 
         mRenderer = new GameRenderer(mContext);
         Log.v(TAG,"Renderer created");
@@ -61,8 +70,8 @@ public class Game {
         // TODO: Create an collection of objects that respond to touch input and must to informed when touch events take place
         // TODO: DON'T HARDCODE THIS
         if (mBootstrapComplete) {
-            // Send the touch event to the player
-            player.onTouch(event);
+            // Send the touch event to the mPlayer
+            mPlayer.onTouch(event);
         }
     }
 
@@ -88,13 +97,17 @@ public class Game {
         Log.v(TAG, "onResume -");
     }
 
+    public Context getContext() { return mContext; }
+
     public GameRenderer getRenderer() {
         return mRenderer;
     }
 
     public ObjectManager getGameManager() { return mGameManager; }
 
-    public Player getPlayer() { return player; }
+    public Player getPlayer() { return mPlayer; }
 
-    public ObstacleManager getObstacleManager() { return obstacleManager; }
+    public ObstacleManager getObstacleManager() { return mObstacleManager; }
+
+    public MagicManager getMagicManager() { return mMagicManager; }
 }

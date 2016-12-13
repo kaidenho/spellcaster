@@ -37,6 +37,10 @@ public class ObjectManager extends BaseObject {
         mObjects.add(object);
     }
 
+    public void remove(int objectReference) {
+        mObjects.remove(objectReference);
+    }
+
     // TODO: Change this so that GameRenderer can just read off of a single render queue.
     // TODO: This will probably require having a drawlock and a function callback to swap the queues once rendering is completed
     public void copy(ObjectManager source) {

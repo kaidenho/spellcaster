@@ -11,7 +11,7 @@ import android.graphics.Rect;
 public class Obstacle extends GameObject {
     private static final int OBSTICAL_IMAGE_SOURCE = R.drawable.mage;
 
-    private static final int MOVEMENT_SPEED = 600;  // pixels per second
+    private static final int MOVEMENT_SPEED = -600;  // pixels per second, negative is down
 
     public Obstacle(Rect initialLocation, Context context, String name) {
         super(OBSTICAL_IMAGE_SOURCE, initialLocation, context, name);
@@ -24,9 +24,9 @@ public class Obstacle extends GameObject {
 
         super.setLocationRect(new Rect(
                 oldLocation.left,
-                oldLocation.top - (int)(movementDistance),
+                oldLocation.top + (int)(movementDistance),
                 oldLocation.right,
-                oldLocation.bottom - (int)(movementDistance)
+                oldLocation.bottom + (int)(movementDistance)
         ));
 
         setVertexBuffer(updateLocation(getLocationRect()));

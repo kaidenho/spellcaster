@@ -15,12 +15,12 @@ public class Spell extends GameObject {
     private static final int MOVEMENT_SPEED = 600;  // pixels per second
 
     // Image Source constant
-    private final static int SPELL_IMAGE_SOURCE = R.drawable.mage;
+    private final static int SPELL_TEXTURE_INDEX = 2;
 
     private boolean mHasCollided = false;
 
     public Spell(Rect locationRect, Context context) {
-        super(SPELL_IMAGE_SOURCE, locationRect, context, "Spell");
+        super(SPELL_TEXTURE_INDEX, locationRect, context, "Spell");
     }
 
     @Override

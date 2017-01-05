@@ -17,9 +17,10 @@ public class ObstacleManager extends ObjectManager{
     private static final int MIN_TIME_BETWEEN_OBSTACLES = 1000;
     private static final int MAX_TIME_BETWEEN_OBSTACLES = 3000;
 
-    private ObjectManager mObstacles;
     private long timeLastAddition = 0;
     private int timeNextAddition;
+    private int mObstacleCounter = 0;
+
 
     private Context mContext;
 
@@ -39,31 +40,20 @@ public class ObstacleManager extends ObjectManager{
         if (SystemClock.uptimeMillis() - timeLastAddition > timeNextAddition) {
             // Range is 0 - 2
             column = rand.nextInt(3);   //Excludes top value and includes 0
-            column2 = rand.nextInt(3);
-            twoObstacles = rand.nextBoolean();
+
 
             // Zero is at the top?
             Obstacle obstacle = new Obstacle(new Rect(
                     column * 200,
-                    (int)(mContext.getResources().getDisplayMetrics().heightPixels),
+                    mContext.getResources().getDisplayMetrics().heightPixels,
                     column * 200 + 200,
-                    (int)(mContext.getResources().getDisplayMetrics().heightPixels - 200)
-            ), mContext, "Obstacle");
+                    mContext.getResources().getDisplayMetrics().heightPixels - 200
+            ), mContext, "Obstacle" + mObstacleCounter);
+            mObstacleCounter++;
 
             add(obstacle);
 
-            if (twoObstacles) {
-                Obstacle obstacle2 = new Obstacle(new Rect(
-                        column2 * 200,
-                        (int)(mContext.getResources().getDisplayMetrics().heightPixels),
-                        column2 * 200 + 200,
-                        (int)(mContext.getResources().getDisplayMetrics().heightPixels - 200)
-                ), mContext, "Obstacle2");
-
-                add(obstacle2);
-            }
-
-            Log.d(TAG, "Object added to " + this.getClass().getSimpleName() + ". New size is " + getSize());
+            //Log.d(TAG, "Object added to " + this.getClass().getSimpleName() + ". New size is " + getSize());
 
             timeLastAddition = SystemClock.uptimeMillis();
             timeNextAddition = rand.nextInt(MAX_TIME_BETWEEN_OBSTACLES - MIN_TIME_BETWEEN_OBSTACLES) + MIN_TIME_BETWEEN_OBSTACLES;

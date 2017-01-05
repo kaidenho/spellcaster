@@ -2,6 +2,8 @@ package com.kaidenho.gamelooptest;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -23,16 +25,21 @@ public class Game {
     private boolean mBootstrapComplete = false;
 
     private Context mContext;
+    private Scaling mScaling;
 
     // TODO: UN-HARDCODE THIS
     private Player mPlayer;
     private ObstacleManager mObstacleManager;
     private MagicManager mMagicManager;
-    private ScoreDisplay scoreDisplay;
+    private ScoreManager mScoreManager;
+    private SharedPreferences mSavedData;
 
-    public Game (Context context) {
+    public Game (Context context, SharedPreferences savedData) {
         Log.v(TAG, "Game created");
         mContext = context;
+        mScaling = new Scaling(mContext);
+
+        mSavedData = savedData;
     }
 
 
@@ -51,9 +58,14 @@ public class Game {
         mMagicManager = new MagicManager(mContext, mPlayer);
         mGameManager.add(mMagicManager);
 
-        scoreDisplay = new ScoreDisplay();
-        //mGameManager.add(scoreDisplay);
-        // TODO: add score display
+        mScoreManager = new ScoreManager(mContext, new Rect(
+                //200,200,400,0
+                540,
+                (int)mScaling.gameHeight,
+                600,
+                (int)mScaling.gameHeight - 60
+        ));
+        mGameManager.add(mScoreManager);
 
         mRenderer = new GameRenderer(mContext);
         Log.v(TAG,"Renderer created");
@@ -97,6 +109,25 @@ public class Game {
         Log.v(TAG, "onResume -");
     }
 
+    // Only call this when ready to save a new highscore, i.e. after the player has died
+    public boolean checkNewHighScore() {
+        Log.d(TAG, "New score = " + mScoreManager.getScore() + ", old score = " + mSavedData.getLong(mContext.getString(R.string.high_score), 0));
+        if (mScoreManager.getScore() > mSavedData.getLong(mContext.getString(R.string.high_score), 0)) {
+            Log.d(TAG, "High score of " + mScoreManager.getScore() + " saved");
+
+            // New highscore has been set
+            SharedPreferences.Editor editor = mSavedData.edit();
+            editor.putLong(mContext.getString(R.string.high_score), mScoreManager.getScore());
+            editor.commit();
+
+
+            return true;
+        }
+
+        return false;
+    }
+
+
     public Context getContext() { return mContext; }
 
     public GameRenderer getRenderer() {
@@ -110,4 +141,7 @@ public class Game {
     public ObstacleManager getObstacleManager() { return mObstacleManager; }
 
     public MagicManager getMagicManager() { return mMagicManager; }
+
+    public ScoreManager getScoreManager() { return mScoreManager; }
+
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GameLoopTest</string>
+    <string name="high_score">HIGH_SCORE</string>
+    <string name="saved_data">SAVED_DATA_FILE</string>
 </resources>

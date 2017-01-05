@@ -1,6 +1,7 @@
 package com.kaidenho.gamelooptest;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -19,7 +20,6 @@ public class GameRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = GameRenderer.class.getSimpleName();
     private int mDebugCounter = 0;
 
-    private RenderObjectManager mDrawQueue;
 
     // Matrices
     private final float[] mtrxProjection = new float[16];
@@ -32,13 +32,22 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
     private Context mContext;
 
-    private GameObject player;
+    private final static int DRAW_QUEUE_COUNT = 2;
+
+    private RenderObjectManager[] mRenderQueues;
+    private int mCurrentQueue = 0;
+    private Object mDrawLock = new Object();
 
     public GameRenderer(Context context) {
         Log.v(TAG, "GameRenderer created");
 
         mContext = context;
-        mDrawQueue = new RenderObjectManager();
+
+        mRenderQueues = new RenderObjectManager[DRAW_QUEUE_COUNT];
+
+        for (int i = 0; i < DRAW_QUEUE_COUNT; i++) {
+            mRenderQueues[i] = new RenderObjectManager();
+        }
     }
 
     @Override
@@ -49,13 +58,21 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         // Clear Screen and Depth Buffer
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-        if (mDrawQueue != null) {
-            //player.draw(mtrxProjectionAndView);
-            mDrawQueue.draw(mtrxProjectionAndView);
-            //mDebugCounter++;
-            if(mDebugCounter > 100) {
-                mDrawQueue.printAll();
-                mDebugCounter = 0;
+        synchronized (mDrawLock) {
+            if (mRenderQueues[mCurrentQueue] != null) {
+                //player.draw(mtrxProjectionAndView);
+                mRenderQueues[mCurrentQueue].draw(mtrxProjectionAndView);
+
+                if (mRenderQueues[mCurrentQueue].getSize() < 1) {
+                    Log.d(TAG,"RenderQueue " + mCurrentQueue + " size is " + mRenderQueues[mCurrentQueue].getSize()
+                            + ". Queue " + (mCurrentQueue + 1) % DRAW_QUEUE_COUNT + " size is " + mRenderQueues[(mCurrentQueue + 1) % DRAW_QUEUE_COUNT].getSize());
+                }
+
+                mDebugCounter++;
+                if(mDebugCounter > 1000) {
+                    mRenderQueues[mCurrentQueue].printAll();
+                    mDebugCounter = 0;
+                }
             }
         }
     }
@@ -87,7 +104,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
         // Without this line of code, nothing appear on the screen TODO: Why?
         // The only part of this that seems to be necessary is the instatiation of a new GameObject
-        new Player(mContext, "RendererPlayer");
+        BaseObject.renderSystem.generateTextures(mContext);
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -114,9 +131,27 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    public synchronized void  setRenderQueue(RenderObjectManager renderQueue) {
-        if (renderQueue == null) { throw new NullPointerException(); }
-        mDrawQueue.copy(renderQueue);
-        //Log.d(TAG, "Render Queues Swapped. New Queue size is " + mDrawQueue.getSize());
+    public void passToRenderer(RenderObjectManager renderQueue) {
+        synchronized (mDrawLock) {
+            if (renderQueue == null) {
+                throw new NullPointerException();
+            }
+
+            swap();
+
+            mRenderQueues[mCurrentQueue].copy(renderQueue);
+
+            //Log.d(TAG, "passToRenderer copied to queue " + mCurrentQueue + " size = " + mRenderQueues[mCurrentQueue].getSize());
+
+
+
+            //Log.d(TAG, "Render Queues Swapped. New Queue size is " + mRenderQueues[mCurrentQueue].getSize());
+        }
+    }
+
+    private void swap() {
+            mCurrentQueue = (mCurrentQueue + 1) % DRAW_QUEUE_COUNT;
+            mRenderQueues[mCurrentQueue].clear();
+            //Log.d(TAG, "Queues swapped, current queue is " + mCurrentQueue);
     }
 }

@@ -1,6 +1,8 @@
 package com.kaidenho.gamelooptest;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,12 +24,16 @@ public class GameActivity extends Activity {
     // The surface view that openGL will draw on
     private GameSurfaceView mSurfaceView;
 
+    private SharedPreferences mSavedData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate +");
         super.onCreate(savedInstanceState);
 
-        mGame = new Game(this);
+        mSavedData = getSharedPreferences(getString(R.string.saved_data), MODE_PRIVATE);
+        mGame = new Game(this, mSavedData);
+
         BaseObject.gameSystem = mGame;
 
         // make the window fullscreen
@@ -64,12 +70,15 @@ public class GameActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed(){
+        moveTaskToBack(true);
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         mGame.handleTouchEvent(event);
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.d("Main Activity", "Touch event at " + event.getX() + ", " + event.getY());
-        }
         return true;
     }
 

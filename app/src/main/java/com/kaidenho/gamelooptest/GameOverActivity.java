@@ -13,10 +13,11 @@ import android.view.WindowManager;
  * Created by Kaiden Ho on 2016-11-23.
  */
 public class GameOverActivity extends Activity {
-    private final static String TAG = MainMenuActivity.class.getSimpleName();
+    private final static String TAG = GameOverActivity.class.getSimpleName();
 
-    private final int RETRY_BUTTON_IMAGE_SOURCE = R.drawable.mage;
-    private final int MAIN_MENU_BUTTON_IMAGE_SOURCE = R.drawable.mage;
+    private final int RETRY_BUTTON_TEXTURE_INDEX = 5;
+    private final int MAIN_MENU_BUTTON_TEXTURE_INDEX = 4;
+    private final int NEW_HIGH_SCORE_TEXTURE_INDEX = 16;
 
     private Scaling mScaling;
 
@@ -24,9 +25,14 @@ public class GameOverActivity extends Activity {
     private GameSurfaceView mSurfaceView;
     private GameRenderer mRenderer;
     private RenderObjectManager mRenderQueue;
+    private ScoreManager mScoreManager;
 
     private GameObject mRetryButton;
     private GameObject mMainMenuButton;
+    private GameObject mNewHighScore;
+
+    private long mScore;
+    private boolean mCheckNewHighScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +43,9 @@ public class GameOverActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        mScore = getIntent().getLongExtra("SCORE", 100);
+        mCheckNewHighScore = getIntent().getBooleanExtra("NEW_HIGH_SCORE", false);
+
         mScaling = new Scaling(this);
 
         mSurfaceView = new GameSurfaceView(this);
@@ -44,13 +53,12 @@ public class GameOverActivity extends Activity {
 
         mRenderer = new GameRenderer(this);
         mSurfaceView.setRenderer(mRenderer);
-        //mSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);    // requestRender() must be called whenever a new frame is created
-        Log.v(TAG,"Renderer created");
+        Log.d(TAG,"Renderer created");
 
-        // TODO: Move this into a new function specifically for rendering
-        mRenderQueue = createMenu();
-        mRenderer.setRenderQueue(mRenderQueue);
-        // mSurfaceView.requestRender();
+        createMenu();
+        createScoreDisplay();
+
+        BaseObject.renderSystem.swap(mRenderer);
         Log.d(TAG,"Renderer Requested");
     }
 
@@ -58,9 +66,6 @@ public class GameOverActivity extends Activity {
     public boolean onTouchEvent(MotionEvent event) {
         handleTouchEvent(event);
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.v("Main Activity", "Touch event at " + event.getX() + ", " + event.getY());
-        }
         return true;
     }
 
@@ -78,32 +83,60 @@ public class GameOverActivity extends Activity {
         Log.d(TAG, "Paused");
     }
 
-    private RenderObjectManager createMenu() {
-        RenderObjectManager renderQueue = new RenderObjectManager();
-
+    private void createMenu() {
         // Location given in scaled gameUnits
         Rect retryButtonlocation = new Rect(
                 350,
-                (int)(this.getResources().getDisplayMetrics().heightPixels / mScaling.gameUnit / 2 + 75),   // 300 is half of the screen, because gameUnit is divided by 600
+                (int)(mScaling.gameHeight / 2 - 100),   // 300 is half of the screen, because gameUnit is divided by 600
                 500,
-                (int)(this.getResources().getDisplayMetrics().heightPixels / mScaling.gameUnit / 2 - 75)
+                (int)(mScaling.gameHeight / 2 - 250)
         );
 
-        mRetryButton = new GameObject(RETRY_BUTTON_IMAGE_SOURCE, retryButtonlocation, this, "Start Button");
+        mRetryButton = new GameObject(RETRY_BUTTON_TEXTURE_INDEX, retryButtonlocation, this, "Start Button");
+        BaseObject.renderSystem.add(mRetryButton);
 
-        renderQueue.add(mRetryButton);
         Rect mainMenuButtonlocation = new Rect(
                 100,
-                (int)(this.getResources().getDisplayMetrics().heightPixels / mScaling.gameUnit / 2 + 75),   // 300 is half of the screen, because gameUnit is divided by 600
+                (int)(mScaling.gameHeight / 2 - 100),   // 300 is half of the screen, because gameUnit is divided by 600
                 250,
-                (int)(this.getResources().getDisplayMetrics().heightPixels / mScaling.gameUnit / 2 - 75)
+                (int)(mScaling.gameHeight / 2 - 250)
         );
 
-        mMainMenuButton = new GameObject(RETRY_BUTTON_IMAGE_SOURCE, mainMenuButtonlocation, this, "Start Button");
+        mMainMenuButton = new GameObject(MAIN_MENU_BUTTON_TEXTURE_INDEX, mainMenuButtonlocation, this, "Start Button");
+        BaseObject.renderSystem.add(mMainMenuButton);
+    }
 
-        renderQueue.add(mMainMenuButton);
+    private void createScoreDisplay() {
+        // get digits to score so that it can be centered
+        int scoreDigitCount = 0;
+        long score = mScore;
+        while (score >= 1) {
+            scoreDigitCount++;
+            score /= 10;
+        }
 
-        return renderQueue;
+        Rect scoreLocationRect = new Rect(
+                300 + (int)(scoreDigitCount / 2 * 60) - 30,  // each digit is 60 x 60
+                (int)(mScaling.gameHeight / 2) + 60,
+                300 + (int)(scoreDigitCount / 2 * 60) + 30,
+                (int)(mScaling.gameHeight / 2)
+        );
+
+        mScoreManager = new ScoreManager(this, scoreLocationRect);
+        mScoreManager.setScore(mScore);
+
+        // TODO: Draw 'New high score' image
+        /*if (mCheckNewHighScore) {
+            scoreLocationRect.left += 60;
+            scoreLocationRect.top += 100;
+            scoreLocationRect.right += 100;
+            scoreLocationRect.bottom += 60;
+
+            mNewHighScore = new GameObject(NEW_HIGH_SCORE_TEXTURE_INDEX, scoreLocationRect, this, "New High Score");
+            mRenderQueue.add(mNewHighScore);
+        }*/
+
+        mScoreManager.update(0);    // adds the digits to the renderqueue
     }
 
     private void handleTouchEvent(MotionEvent event) {
@@ -124,7 +157,7 @@ public class GameOverActivity extends Activity {
     }
 
     public boolean within(float x, float y, Rect rect) {
-        Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
+     //   Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
         if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
             return false;
         }

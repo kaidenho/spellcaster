@@ -19,6 +19,6 @@ public class Scaling {
         gameUnit = (float)context.getResources().getDisplayMetrics().widthPixels / 600F;
         // the path enemies have to travel might be longer or shorter.
         // Additionally, UI elements at the top of the screen are measured against this
-        gameHeight = (float)context.getResources().getDisplayMetrics().heightPixels / 600;
+        gameHeight = (float)context.getResources().getDisplayMetrics().heightPixels / gameUnit;
     }
 }

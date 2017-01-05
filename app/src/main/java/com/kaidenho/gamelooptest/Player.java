@@ -13,8 +13,8 @@ import android.view.MotionEvent;
 public class Player extends GameObject {
     private final static String TAG = GameObject.class.getSimpleName();
 
-    // Image Source constant
-    private final static int PLAYER_IMAGE_SOURCE = R.drawable.mage;
+    // Image texture index, find in RenderSystem
+    private final static int PLAYER_TEXTURE_INDEX = 0;
 
     // Collision variables
     private boolean mHasCollided = false;
@@ -27,7 +27,7 @@ public class Player extends GameObject {
 
 
     public Player (Context context, String name) {
-        super(PLAYER_IMAGE_SOURCE, new Rect(200, 200, 400, 0), context, name);
+        super(PLAYER_TEXTURE_INDEX, new Rect(200, 200, 400, 0), context, name);
     }
 
     public void onTouch(MotionEvent event) {
@@ -81,7 +81,7 @@ public class Player extends GameObject {
 
                 // This collision logic is column-based
                 if (locationRect.left >= getLocationRect().left && locationRect.right <= getLocationRect().right && locationRect.bottom <= getLocationRect().top && locationRect.bottom >= getLocationRect().bottom) {
-                        Log.d(TAG, "Object Collided with is " + i + " out of " + collection.getSize());
+                        Log.d(TAG, "Object Collided with is " + i + " out of " + collection.getSize() + " Object collided with is " + ((GameObject)collection.mObjects.get(i)).getName());
                         mHasCollided = true;
                         return true;
                 }

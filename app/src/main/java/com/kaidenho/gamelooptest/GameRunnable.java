@@ -1,7 +1,9 @@
 package com.kaidenho.gamelooptest;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -43,10 +45,19 @@ public class GameRunnable implements Runnable {
                 mGameRoot.getMagicManager().checkCollisions(mGameRoot.getObstacleManager());
 
                 if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {
+                    // Switch to GameOverActivity
                     Intent intent = new Intent(mGameRoot.getContext(), GameOverActivity.class);
-                    Activity activity = (Activity)mGameRoot.getContext();
+
+                    intent.putExtra("SCORE", mGameRoot.getScoreManager().getScore());   // 'getScore' returns a long value: datatype used for retrieval
+                    Log.d(TAG, "Check new highscore = " + mGameRoot.checkNewHighScore());
+                    // Check to see if there is a new high score
+                    if (mGameRoot.checkNewHighScore()) {
+                        // New high score has been set, display the appropriate image
+                        intent.putExtra("NEW_HIGH_SCORE", true);
+                    }
+
                     Log.d(TAG, "Game Over");
-                    activity.startActivity(intent);
+                    mGameRoot.getContext().startActivity(intent);
                 }
 
                 // After updating the objects location

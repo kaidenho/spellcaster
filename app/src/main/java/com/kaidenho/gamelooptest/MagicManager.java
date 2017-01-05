@@ -43,11 +43,15 @@ public class MagicManager extends ObjectManager {
         for (int i = 0; i < getSize(); i++) {
             Spell spell = (Spell)mObjects.get(i);   // This must by typecast, hence the declaration
 
-            int objectCollided = spell.checkCollisions(collection);
-            if (objectCollided >= 0) {
-                Log.d(TAG,"Spell collided");
-                collection.remove(objectCollided);  // Remove the object the spell hit
-                mObjects.remove(i);                 // Remove the spell
+            int iObjectCollided = spell.checkCollisions(collection);
+            if (iObjectCollided >= 0) {
+                Log.d(TAG,"Spell collided with " + ((GameObject) collection.mObjects.get(iObjectCollided)).getName());
+                BaseObject removedObject = collection.remove(iObjectCollided);  // Remove the object the spell hit
+                if (removedObject == null) {
+                    Log.d(TAG,"obstacle not removed");
+                }
+                Log.d(TAG,"Obstacle size is now " + collection.getSize());
+                mObjects.remove(i);                // Remove the spell
                 return true;
             }
         }

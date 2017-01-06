@@ -47,6 +47,11 @@ public class Spell extends GameObject {
         }
     }
 
+    public void playSound() {
+        // see 'Game' for soundIndexs
+        BaseObject.soundSystem.playSound(0);
+    }
+
     public int checkCollisions(ObjectManager collection) {
         for (int i = 0; i < collection.getSize(); i++) {
             if (collection.get(i) instanceof GameObject) {

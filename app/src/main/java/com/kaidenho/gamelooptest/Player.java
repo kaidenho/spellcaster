@@ -14,7 +14,7 @@ public class Player extends GameObject {
     private final static String TAG = GameObject.class.getSimpleName();
 
     // Image texture index, find in RenderSystem
-    private final static int PLAYER_TEXTURE_INDEX = 0;
+    private final static int PLAYER_TEXTURE_INDEX = 16;
 
     // Collision variables
     private boolean mHasCollided = false;
@@ -23,7 +23,7 @@ public class Player extends GameObject {
     private float originX;
     private float originY;
     private boolean movementSwipe = false;
-    private static int swipeDistance = 200;     // 1/3 of the screen width. Always. See Scaling
+    private static int swipeDistance = 150;     // 1/3 of the screen width. Always. See Scaling
 
 
     public Player (Context context, String name) {
@@ -48,15 +48,19 @@ public class Player extends GameObject {
             if (y > getLocationRect().bottom && y < getLocationRect().top) {
                 if (x < originX - swipeDistance) {
                     // Left Swipe
-                    getLocationRect().left -= 200 * getScaling().gameUnit;  // 200 always equals 1/3 the screen width
-                    getLocationRect().right -= 200 * getScaling().gameUnit;
-                    changeLocation = true;
+                    if(getLocationRect().left - (200 * getScaling().gameUnit) >= 0) {
+                        getLocationRect().left -= 200 * getScaling().gameUnit;  // 200 always equals 1/3 the screen width
+                        getLocationRect().right -= 200 * getScaling().gameUnit;
+                        changeLocation = true;
+                    }
                 }
                 if (x > originX + swipeDistance) {
                     // Right Swipe
-                    getLocationRect().left += 200 * getScaling().gameUnit;
-                    getLocationRect().right += 200 * getScaling().gameUnit;
-                    changeLocation = true;
+                    if (getLocationRect().right + 200 * getScaling().gameUnit <= 600 * getScaling().gameUnit) {
+                        getLocationRect().left += 200 * getScaling().gameUnit;
+                        getLocationRect().right += 200 * getScaling().gameUnit;
+                        changeLocation = true;
+                    }
                 }
             }
             if (y > getLocationRect().top && y > originY + swipeDistance) {

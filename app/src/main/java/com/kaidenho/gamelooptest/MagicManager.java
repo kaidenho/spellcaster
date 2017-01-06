@@ -36,6 +36,7 @@ public class MagicManager extends ObjectManager {
         );
 
         Spell spell = new Spell(locationRect, mContext);
+        spell.playSound();
         add(spell);
     }
 

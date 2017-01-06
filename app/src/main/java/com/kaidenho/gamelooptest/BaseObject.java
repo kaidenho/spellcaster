@@ -1,6 +1,7 @@
 package com.kaidenho.gamelooptest;
 
 import android.content.Context;
+import android.media.SoundPool;
 
 /**
  * BaseObjects are updatable objects.
@@ -10,6 +11,7 @@ import android.content.Context;
 public abstract class BaseObject {
     // TODO: should these be getter and setterized?
     static RenderSystem renderSystem = new RenderSystem();
+    static SoundSystem soundSystem = new SoundSystem();
     static Game gameSystem;
 
     // Update should be overridden in all children classes; otherwise, use the normal Object class

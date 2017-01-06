@@ -31,12 +31,16 @@ public class Game {
     private Context mContext;
     private Scaling mScaling;
 
-    // TODO: UN-HARDCODE THIS
     private Player mPlayer;
     private ObstacleManager mObstacleManager;
     private MagicManager mMagicManager;
     private ScoreManager mScoreManager;
     private SharedPreferences mSavedData;
+
+    // Touch variables
+    private float originX;
+    private float originY;
+    private boolean movementSwipe;
 
     public Game (Context context, SharedPreferences savedData) {
         Log.v(TAG, "Game created");
@@ -86,13 +90,30 @@ public class Game {
     }
 
     public void handleTouchEvent(MotionEvent event) {
-        // TODO: Work on this.
-        // TODO: Add functionality for both swipe and touch events.
         // TODO: Create an collection of objects that respond to touch input and must to informed when touch events take place
-        // TODO: DON'T HARDCODE THIS
+
         if (mBootstrapComplete) {
-            // Send the touch event to the mPlayer
-            mPlayer.onTouch(event);
+            float x = event.getX();
+            // Inverting the y axis is preference, but I always think of 0 as being at the bottom
+            float y = getContext().getResources().getDisplayMetrics().heightPixels - event.getY();
+
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                originX = x;
+                originY = y;
+            }
+
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (Math.abs(x - originX) > Math.abs(y - originY)) {    // swipe sideways
+                    if(x - originX > 0) {       // swipe right
+                        mPlayer.moveRight();
+                    } else {                    // swipe left
+                        mPlayer.moveLeft();
+                    }
+
+                } else if (y - originY > 0) {       // swipe up
+                    mPlayer.shoot();
+                }
+            }
         }
     }
 
@@ -134,6 +155,14 @@ public class Game {
         }
 
         return false;
+    }
+
+    private boolean within(float x, float y, Rect rect) {
+        Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
+        if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
+            return false;
+        }
+        return true;
     }
 
 

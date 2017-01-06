@@ -14,7 +14,12 @@ public class Player extends GameObject {
     private final static String TAG = GameObject.class.getSimpleName();
 
     // Image texture index, find in RenderSystem
-    private final static int PLAYER_TEXTURE_INDEX = 16;
+    private final static int[] PLAYER_TEXTURE_INDEXES = {16, 17, 16, 18};
+
+    private final static int SPRITE_INTERVAL = 150;
+
+    private long mSpriteCounter = 0;
+    private int mCurrentSprite = 0;
 
     // Collision variables
     private boolean mHasCollided = false;
@@ -27,54 +32,43 @@ public class Player extends GameObject {
 
 
     public Player (Context context, String name) {
-        super(PLAYER_TEXTURE_INDEX, new Rect(200, 200, 400, 0), context, name);
+        super(PLAYER_TEXTURE_INDEXES[0], new Rect(200, 200, 400, 0), context, name);
     }
 
-    public void onTouch(MotionEvent event) {
-        boolean changeLocation = false;
-        float x = event.getX();
-        // Inverting the y axis is preference, but I always think of 0 as being at the bottom
-        float y = getContext().getResources().getDisplayMetrics().heightPixels - event.getY();
+    @Override
+    public void update(long timeDelta) {
+        // sprite feature
+        if(mSpriteCounter > SPRITE_INTERVAL) {
+            mCurrentSprite = (mCurrentSprite + 1) % PLAYER_TEXTURE_INDEXES.length;
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (within(x, y, getLocationRect())) {
-                movementSwipe = true;
-            }
-            originX = x;
-            originY = y;
+            super.changeTextureIndex(PLAYER_TEXTURE_INDEXES[mCurrentSprite]);
+
+            mSpriteCounter = 0;
         }
+        mSpriteCounter += timeDelta;
 
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (y > getLocationRect().bottom && y < getLocationRect().top) {
-                if (x < originX - swipeDistance) {
-                    // Left Swipe
-                    if(getLocationRect().left - (200 * getScaling().gameUnit) >= 0) {
-                        getLocationRect().left -= 200 * getScaling().gameUnit;  // 200 always equals 1/3 the screen width
-                        getLocationRect().right -= 200 * getScaling().gameUnit;
-                        changeLocation = true;
-                    }
-                }
-                if (x > originX + swipeDistance) {
-                    // Right Swipe
-                    if (getLocationRect().right + 200 * getScaling().gameUnit <= 600 * getScaling().gameUnit) {
-                        getLocationRect().left += 200 * getScaling().gameUnit;
-                        getLocationRect().right += 200 * getScaling().gameUnit;
-                        changeLocation = true;
-                    }
-                }
-            }
-            if (y > getLocationRect().top && y > originY + swipeDistance) {
-                // Up swipe for shoot
-                this.shoot();
-            }
-        }
+        super.update(timeDelta);
+    }
 
-        if (changeLocation) {
+    public void moveRight() {
+        if (getLocationRect().right + 200 * getScaling().gameUnit <= 600 * getScaling().gameUnit) {
+            getLocationRect().left += 200 * getScaling().gameUnit;
+            getLocationRect().right += 200 * getScaling().gameUnit;
+
             setVertexBuffer(updateLocation(getLocationRect()));
         }
     }
 
-    private void shoot() {
+    public void moveLeft() {
+        if(getLocationRect().left - (200 * getScaling().gameUnit) >= 0) {
+            getLocationRect().left -= 200 * getScaling().gameUnit;  // 200 always equals 1/3 the screen width
+            getLocationRect().right -= 200 * getScaling().gameUnit;
+
+            setVertexBuffer(updateLocation(getLocationRect()));
+        }
+    }
+
+    public void shoot() {
         BaseObject.gameSystem.getMagicManager().shoot();
     }
 
@@ -94,7 +88,7 @@ public class Player extends GameObject {
         return false;
     }
 
-    public boolean within(float x, float y, Rect rect) {
+    private boolean within(float x, float y, Rect rect) {
         Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
         if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
             return false;

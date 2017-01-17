@@ -67,10 +67,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
                     Log.d(TAG,"RenderQueue " + mCurrentQueue + " size is " + mRenderQueues[mCurrentQueue].getSize()
                             + ". Queue " + (mCurrentQueue + 1) % DRAW_QUEUE_COUNT + " size is " + mRenderQueues[(mCurrentQueue + 1) % DRAW_QUEUE_COUNT].getSize());
                 }
+                mRenderQueues[mCurrentQueue].printAll();
 
                 mDebugCounter++;
                 if(mDebugCounter > 1000) {
-                    mRenderQueues[mCurrentQueue].printAll();
+
                     mDebugCounter = 0;
                 }
             }

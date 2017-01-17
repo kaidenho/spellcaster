@@ -38,8 +38,22 @@ public class RenderObjectManager extends ObjectManager {
     }
 
     public void printAll() {
+        Log.d(TAG,"BREAK");
         for (int i = 0; i < mObjects.size(); i++) {
-            Log.d(TAG, "The " + i + " object is " + mObjects.get(i).getClass().getSimpleName());
+            GameObject object = ((GameObject) mObjects.get(i));
+
+            if (object.getName().equals("Background2") ||
+                    object.getName().equals("Background3") ||
+                    object.getName().equals("Background4") ||
+                    object.getName().equals("Background5") ||
+                    object.getName().equals("Background1")) {
+               /* if (object.previousTop == object.getLocationRect().top) {
+                    Log.d(TAG,"REALLY BIG ERROR");
+                }*/
+                object.previousTop = object.getLocationRect().top;
+
+                Log.d(TAG, object.getName() + " location is " + object.getLocationRect().top + " at " + object.getDebugCounter());
+            }
         }
     }
 }

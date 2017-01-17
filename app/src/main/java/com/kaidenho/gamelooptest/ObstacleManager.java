@@ -44,9 +44,9 @@ public class ObstacleManager extends ObjectManager{
 
             // Zero is at the top?
             Obstacle obstacle = new Obstacle(new Rect(
-                    column * 200,
+                    200 + (column * 200),
                     mContext.getResources().getDisplayMetrics().heightPixels,
-                    column * 200 + 200,
+                    200 + (column * 200 + 200),
                     mContext.getResources().getDisplayMetrics().heightPixels - 200
             ), mContext, "Obstacle" + mObstacleCounter);
             mObstacleCounter++;

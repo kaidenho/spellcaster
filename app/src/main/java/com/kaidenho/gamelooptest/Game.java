@@ -31,8 +31,9 @@ public class Game {
     private Context mContext;
     private Scaling mScaling;
 
-    private Player mPlayer;
+    private BackgroundManager mBackgroundManager;
     private ObstacleManager mObstacleManager;
+    private Player mPlayer;
     private MagicManager mMagicManager;
     private ScoreManager mScoreManager;
     private SharedPreferences mSavedData;
@@ -56,12 +57,14 @@ public class Game {
 
         mGameManager = new ObjectManager();
 
-        // TODO: Move this to the gamethread?
-        mPlayer = new Player(mContext, "GamePlayer");
-        mGameManager.add(mPlayer);
+        mBackgroundManager = new BackgroundManager(mContext);
+        mGameManager.add(mBackgroundManager);
 
         mObstacleManager = new ObstacleManager(mContext);
         mGameManager.add(mObstacleManager);
+
+        mPlayer = new Player(mContext, "GamePlayer");
+        mGameManager.add(mPlayer);
 
         mMagicManager = new MagicManager(mContext, mPlayer);
         mGameManager.add(mMagicManager);

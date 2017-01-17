@@ -42,6 +42,8 @@ public class GameObject extends BaseObject {
 
     // Debug
     private String mName;
+    private int mDebugCounter = 0;
+    public int previousTop = 0;
 
     /**
      *
@@ -148,7 +150,28 @@ public class GameObject extends BaseObject {
         return mTextureBuffer;
     }
 
-    protected FloatBuffer updateLocation(Rect mLocationRect) {
+    public FloatBuffer updateLocation(Rect locationRect) {
+        FloatBuffer mVertexBuffer;
+        float [] mVertices = new float[12];
+
+        // Vertices coordinates are set in groups of three (x,y,z)
+        // Coordinates should be given in counterclockwise order due to openGL rendering procedures
+        mVertices[0] = locationRect.left;   mVertices[1] = locationRect.top;   mVertices[2] = 0;
+        mVertices[3] = locationRect.left;   mVertices[4] = locationRect.bottom;   mVertices[5] = 0;
+        mVertices[6] = locationRect.right; mVertices[7] = locationRect.bottom;   mVertices[8] = 0;
+        mVertices[9] = locationRect.right; mVertices[10] = locationRect.top; mVertices[11] = 0;
+
+        // Set the vertex buffer
+        ByteBuffer bb = ByteBuffer.allocateDirect(mVertices.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        mVertexBuffer = bb.asFloatBuffer();
+        mVertexBuffer.put(mVertices);
+        mVertexBuffer.position(0);
+
+        return mVertexBuffer;
+    }
+
+    public FloatBuffer updateLocation() {
         FloatBuffer mVertexBuffer;
         float [] mVertices = new float[12];
 
@@ -217,6 +240,10 @@ public class GameObject extends BaseObject {
     }
 
     public void changeTextureIndex(int newTextureIndex) { mTextureIndex = newTextureIndex; }
+
+    public int getDebugCounter() { return mDebugCounter; };
+
+    public void addToDebugCounter() {mDebugCounter++; };
 
 
 }

@@ -51,7 +51,8 @@ public class RenderSystem {
                 R.drawable.nine,    // 15
                 R.drawable.mage01,
                 R.drawable.mage02,
-                R.drawable.mage03
+                R.drawable.mage03,
+                R.drawable.tile
         };
 
         // Generate Textures, if more needed, alter these numbers.

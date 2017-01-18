@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 /**
@@ -16,26 +17,25 @@ public class MagicManager extends ObjectManager {
     private static final String TAG = MagicManager.class.getSimpleName();
     private int mDebugCounter = 0;
 
-    private Context mContext;
     private Player mPlayer;
-    private Scaling mScaling;
 
-    public MagicManager(Context context, Player player) {
+    private int mHeight;
+
+    public MagicManager(Player player, int height) {
         super();
-        mContext = context;
         mPlayer = player;
-        mScaling = new Scaling(mContext);
+        mHeight = height;
     }
 
     public void shoot() {
-        Rect locationRect = new Rect(
-                (int)(mPlayer.getLocationRect().left / mScaling.gameUnit) + 50,
-                (int)(mPlayer.getLocationRect().top / mScaling.gameUnit) - 50,
-                (int)(mPlayer.getLocationRect().right / mScaling.gameUnit) - 50,
-                (int)(mPlayer.getLocationRect().bottom / mScaling.gameUnit) + 50
+        RectF locationRect = new RectF(
+                mPlayer.getLocationRect().left + 50,
+                mPlayer.getLocationRect().top + 50,
+                mPlayer.getLocationRect().right - 50,
+                mPlayer.getLocationRect().top - 50
         );
 
-        Spell spell = new Spell(locationRect, mContext);
+        Spell spell = new Spell(locationRect);
         spell.playSound();
         add(spell);
     }
@@ -63,11 +63,11 @@ public class MagicManager extends ObjectManager {
     public void update(long timeDelta) {
         super.update(timeDelta);
 
-        int height = mContext.getResources().getDisplayMetrics().heightPixels;
         for (int i = 0; i < getSize(); i++) {
             Spell spell = (Spell)mObjects.get(i);
-            if (spell.getLocationRect().bottom > height) {
+            if (spell.getLocationRect().bottom > mHeight) {
                 mObjects.remove(i);
+                Log.d(TAG,"height = " + mHeight + ", spell bottom = " + spell.getLocationRect().bottom);
                 Log.d(TAG, "Spell removed. Current total = " + getSize());
             }
         }

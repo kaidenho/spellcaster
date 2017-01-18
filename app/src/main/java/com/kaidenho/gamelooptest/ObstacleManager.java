@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -24,8 +25,11 @@ public class ObstacleManager extends ObjectManager{
 
     private Context mContext;
 
+    private Scaling mScaling;
+
     public ObstacleManager(Context context) {
         mContext = context;
+        mScaling = new Scaling(context);
     }
 
     @Override
@@ -43,12 +47,12 @@ public class ObstacleManager extends ObjectManager{
 
 
             // Zero is at the top?
-            Obstacle obstacle = new Obstacle(new Rect(
-                    200 + (column * 200),
-                    mContext.getResources().getDisplayMetrics().heightPixels,
-                    200 + (column * 200 + 200),
-                    mContext.getResources().getDisplayMetrics().heightPixels - 200
-            ), mContext, "Obstacle" + mObstacleCounter);
+            Obstacle obstacle = new Obstacle(new RectF(
+                    column * 200,
+                    mScaling.gameHeight + 200,
+                    column * 200 + 200,
+                    mScaling.gameHeight
+            ), "Obstacle" + mObstacleCounter);
             mObstacleCounter++;
 
             add(obstacle);

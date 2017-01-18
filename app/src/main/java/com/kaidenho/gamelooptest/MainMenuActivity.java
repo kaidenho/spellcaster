@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -88,14 +89,14 @@ public class MainMenuActivity extends Activity {
 
     private void createMenu() {
         // Location given in scaled gameUnits
-        Rect location = new Rect(
+        RectF location = new RectF(
                 200,
-                (int)(mScaling.gameHeight / 2 + 100),
+                mScaling.gameHeight / 2 + 100,
                 400,
-                (int)(mScaling.gameHeight / 2 - 100)
+                mScaling.gameHeight / 2 - 100
         );
 
-        mStartButton = new GameObject(START_BUTTON_TEXTURE_INDEX, location, this, "Start Button");
+        mStartButton = new GameObject(START_BUTTON_TEXTURE_INDEX, location, "Start Button");
 
         BaseObject.renderSystem.add(mStartButton);
     }
@@ -110,7 +111,7 @@ public class MainMenuActivity extends Activity {
         }
 
         // display the high score
-        Rect scoreLocationRect = new Rect(
+        RectF scoreLocationRect = new RectF(
                 300 + (int)(scoreDigitCount * 30) - 60,  // each digit is 60 x 60
                 (int)(mScaling.gameHeight / 2) - 200,
                 300 + (int)(scoreDigitCount * 30 ),
@@ -133,9 +134,10 @@ public class MainMenuActivity extends Activity {
         }
     }
 
-    public boolean within(float x, float y, Rect rect) {
+    public boolean within(float x, float y, RectF rect) {
         //Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
-        if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
+        if (x < rect.left * mScaling.gameUnit || x > rect.right * mScaling.gameUnit
+                || y < rect.bottom * mScaling.gameUnit || y > rect.top * mScaling.gameUnit) {
             return false;
         }
         return true;

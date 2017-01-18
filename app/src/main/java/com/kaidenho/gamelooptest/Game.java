@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -57,20 +58,19 @@ public class Game {
 
         mGameManager = new ObjectManager();
 
-        mBackgroundManager = new BackgroundManager(mContext);
+        mBackgroundManager = new BackgroundManager(mContext, mScaling.gameHeight);
         mGameManager.add(mBackgroundManager);
 
         mObstacleManager = new ObstacleManager(mContext);
         mGameManager.add(mObstacleManager);
 
-        mPlayer = new Player(mContext, "GamePlayer");
+        mPlayer = new Player(mContext, "Player");
         mGameManager.add(mPlayer);
 
-        mMagicManager = new MagicManager(mContext, mPlayer);
+        mMagicManager = new MagicManager(mPlayer, (int)mScaling.gameHeight);
         mGameManager.add(mMagicManager);
 
-        mScoreManager = new ScoreManager(mContext, new Rect(
-                //200,200,400,0
+        mScoreManager = new ScoreManager(mContext, new RectF(
                 540,
                 (int)mScaling.gameHeight,
                 600,

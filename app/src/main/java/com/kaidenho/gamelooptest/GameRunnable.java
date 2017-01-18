@@ -41,7 +41,6 @@ public class GameRunnable implements Runnable {
                 mGameRoot.getGameManager().update(currentFrameStart - previousFrameStart);
                 //Log.v(TAG, "Object Update Count is " + mGameManager.getSize());
 
-                // TODO: why aren't the obstacles and spels disappearing at the right time?
                 mGameRoot.getMagicManager().checkCollisions(mGameRoot.getObstacleManager());
 
                 if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {

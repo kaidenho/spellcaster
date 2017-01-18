@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -24,6 +25,8 @@ public class Player extends GameObject {
     // Collision variables
     private boolean mHasCollided = false;
 
+    private int hasBeenAdded = 0;
+
     // Touch state variables
     private float originX;
     private float originY;
@@ -32,7 +35,8 @@ public class Player extends GameObject {
 
 
     public Player (Context context, String name) {
-        super(PLAYER_TEXTURE_INDEXES[0], new Rect(200, 200, 400, 0), context, name);
+        super(PLAYER_TEXTURE_INDEXES[0], new RectF(200, 200, 400, 0), name);
+        Log.d(TAG,"Player created");
     }
 
     @Override
@@ -41,30 +45,27 @@ public class Player extends GameObject {
         if(mSpriteCounter > SPRITE_INTERVAL) {
             mCurrentSprite = (mCurrentSprite + 1) % PLAYER_TEXTURE_INDEXES.length;
 
-            super.changeTextureIndex(PLAYER_TEXTURE_INDEXES[mCurrentSprite]);
+            setTextureIndex(PLAYER_TEXTURE_INDEXES[mCurrentSprite]);
 
             mSpriteCounter = 0;
         }
         mSpriteCounter += timeDelta;
 
+        //Log.d(TAG,"Player location = " + getLocationRect());
         super.update(timeDelta);
     }
 
     public void moveRight() {
-        if (getLocationRect().right + 200 * getScaling().gameUnit <= 600 * getScaling().gameUnit) {
-            getLocationRect().left += 200 * getScaling().gameUnit;
-            getLocationRect().right += 200 * getScaling().gameUnit;
-
-            setVertexBuffer(updateLocation(getLocationRect()));
+        if (getLocationRect().right + 200 <= 600) {
+            getLocationRect().left += 200;
+            getLocationRect().right += 200;
         }
     }
 
     public void moveLeft() {
-        if(getLocationRect().left - (200 * getScaling().gameUnit) >= 0) {
-            getLocationRect().left -= 200 * getScaling().gameUnit;  // 200 always equals 1/3 the screen width
-            getLocationRect().right -= 200 * getScaling().gameUnit;
-
-            setVertexBuffer(updateLocation(getLocationRect()));
+        if(getLocationRect().left - 200 >= 0) {
+            getLocationRect().left -= 200;  // 200 equals 1/3 the scaled screen width
+            getLocationRect().right -= 200;
         }
     }
 
@@ -75,11 +76,15 @@ public class Player extends GameObject {
     public boolean checkCollisions(ObjectManager collection) {
         for (int i = 0; i < collection.getSize(); i++) {
             if (collection.get(i) instanceof GameObject) {
-                Rect locationRect = ((GameObject) collection.get(i)).getLocationRect();
+                RectF locationRect = ((GameObject) collection.get(i)).getLocationRect();
 
                 // This collision logic is column-based
-                if (locationRect.left >= getLocationRect().left && locationRect.right <= getLocationRect().right && locationRect.bottom <= getLocationRect().top && locationRect.bottom >= getLocationRect().bottom) {
-                        Log.d(TAG, "Object Collided with is " + i + " out of " + collection.getSize() + " Object collided with is " + ((GameObject)collection.mObjects.get(i)).getName());
+                if (locationRect.left >= getLocationRect().left && locationRect.right <= getLocationRect().right
+                        && locationRect.bottom <= getLocationRect().top && locationRect.bottom >= getLocationRect().bottom) {
+                        Log.d(TAG, "Object collided with is " + i + " out of " + collection.getSize()
+                                + " Object collided with is " + ((GameObject)collection.mObjects.get(i)).getName());
+                        Log.d(TAG, "Object collided with location = " + ((GameObject)collection.mObjects.get(i)).getLocationRect());
+                    Log.d(TAG, "Current location = " + getLocationRect());
                         mHasCollided = true;
                         return true;
                 }
@@ -87,13 +92,4 @@ public class Player extends GameObject {
         }
         return false;
     }
-
-    private boolean within(float x, float y, Rect rect) {
-        Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
-        if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
-            return false;
-        }
-        return true;
-    }
-
 }

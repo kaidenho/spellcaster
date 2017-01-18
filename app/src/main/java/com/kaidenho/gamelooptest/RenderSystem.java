@@ -20,14 +20,14 @@ public class RenderSystem {
 
     private final static int DRAW_QUEUE_COUNT = 2;
 
-    private RenderObjectManager[] mRenderQueues;
+    private ObjectManager[] mRenderQueues;
     private int mCurrentQueue = 0;
 
     public RenderSystem() {
-        mRenderQueues = new RenderObjectManager[DRAW_QUEUE_COUNT];
+        mRenderQueues = new ObjectManager[DRAW_QUEUE_COUNT];
 
         for (int i = 0; i < DRAW_QUEUE_COUNT; i++) {
-            mRenderQueues[i] = new RenderObjectManager();
+            mRenderQueues[i] = new ObjectManager();
         }
     }
 
@@ -81,16 +81,25 @@ public class RenderSystem {
         }
     }
 
+    public void add(GameObject object) {
+        if (object instanceof GameObject) {
+            if (object.getName().equals("Background2") ||
+                    object.getName().equals("Background3") ||
+                    object.getName().equals("Background4") ||
+                    object.getName().equals("Background5") ||
+                    object.getName().equals("Background1")) {
+            //    Log.d(TAG,object.getName() + " added to RenderQueue" + mCurrentQueue + " at " + object.getDebugCounter());
+            }
+        }
+        mRenderQueues[mCurrentQueue].add(object);
+    }
+
     public void swap(GameRenderer renderer) {
         renderer.passToRenderer(mRenderQueues[mCurrentQueue]);
-        //Log.v(TAG, "Current Queue = " + mCurrentQueue);
+       // Log.v(TAG, "Current Queue = " + mCurrentQueue);
 
         mCurrentQueue = (mCurrentQueue + 1) % DRAW_QUEUE_COUNT;
         clearQueue();
-    }
-
-    public void add(GameObject object) {
-        mRenderQueues[mCurrentQueue].add(object);
     }
 
     public void clearQueue() {

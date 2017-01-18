@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -23,12 +24,12 @@ public class ScoreManager extends ObjectManager {
     private float mScore;
     private long mDisplayedScore = -1;
 
-    private Rect mScoreLocationRect;
+    private RectF mScoreLocationRect;
 
-    public ScoreManager(Context context, Rect locationRect) {
+    public ScoreManager(Context context, RectF locationRect) {
         mContext = context;
         mScaling = new Scaling(mContext);
-        mScoreLocationRect = new Rect(locationRect);
+        mScoreLocationRect = new RectF(locationRect);
         Log.d(TAG,"Location rect given: " + mScoreLocationRect);
     }
 
@@ -50,7 +51,6 @@ public class ScoreManager extends ObjectManager {
                 mObjects.add(new GameObject(
                         ZERO_TEXTURE_INDEX,
                         mScoreLocationRect,
-                        mContext,
                         "Score Digit"
                 ));
                 mDisplayedScore = 0;
@@ -77,19 +77,18 @@ public class ScoreManager extends ObjectManager {
                 //Log.d(TAG, "Score " + score + ", displayscore " + mDisplayedScore);
                 int i = 0;
 
-                Rect digitLocationRect = new Rect(mScoreLocationRect);   // Because the digits have to be drawn in different locations, but the score location shouldn't change
+                RectF digitLocationRect = new RectF(mScoreLocationRect);   // Because the digits have to be drawn in different locations, but the score location shouldn't change
                 //Log.d(TAG,"Location rect: " + mLocationRect + ", digit rect: " + digitLocationRect);
 
                 // 'score >= 1' because the while loop changes the value of score, dividing it: a score of '10' will be render as '0' without this
                 while (score >= 1) {
                     if (mObjects.size() > i) {
-                        ((GameObject) mObjects.get(i)).changeTextureIndex(ZERO_TEXTURE_INDEX + (int)(Math.floor(score) % 10));
+                        ((GameObject) mObjects.get(i)).setTextureIndex(ZERO_TEXTURE_INDEX + (int)(Math.floor(score) % 10));
                        // Log.d(TAG, i + " digit location is " + digitLocationRect);
                     } else {
                         mObjects.add(new GameObject(
                                 ZERO_TEXTURE_INDEX + (int)(Math.floor(score) % 10),
                                 digitLocationRect,
-                                mContext,
                                 "Score Digit"
                         ));
                         //Log.d(TAG,"New digit location is " + digitLocationRect);
@@ -114,7 +113,7 @@ public class ScoreManager extends ObjectManager {
         mScore = score;
     }
 
-    private void setLocationRect(Rect locationRect) {
+    private void setLocationRect(RectF locationRect) {
         mScoreLocationRect = locationRect;
         Log.d(TAG, "New locationRect = " + locationRect);
     }

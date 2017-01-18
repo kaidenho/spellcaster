@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 /**
@@ -12,32 +13,19 @@ import android.util.Log;
 public class Obstacle extends GameObject {
     private static final int OBSTACLE_TEXTURE_INDEX = 1;
 
-    private static final int MOVEMENT_SPEED = -600;  // pixels per second, negative is down
+    private static final int MOVEMENT_SPEED = -300;  // pixels per second, negative is down
 
-    public Obstacle(Rect initialLocation, Context context, String name) {
-        super(OBSTACLE_TEXTURE_INDEX, initialLocation, context, name);
+    public Obstacle(RectF initialLocation, String name) {
+        super(OBSTACLE_TEXTURE_INDEX, initialLocation, name);
     }
 
     @Override
     public void update(long timeDelta) {
-        Rect oldLocation = getLocationRect();
         float movementDistance = MOVEMENT_SPEED * timeDelta / 1000;
 
-        super.setLocationRect(new Rect(
-                oldLocation.left,
-                oldLocation.top + (int)(movementDistance),
-                oldLocation.right,
-                oldLocation.bottom + (int)(movementDistance)
-        ));
-
-        setVertexBuffer(updateLocation(getLocationRect()));
+        getLocationRect().top += movementDistance;
+        getLocationRect().bottom += movementDistance;
 
         BaseObject.renderSystem.add(this);
     }
-
-    public Rect getLocationRect() {
-        return super.getLocationRect();
-    }
-
-
 }

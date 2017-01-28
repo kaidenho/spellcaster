@@ -14,6 +14,9 @@ public abstract class BaseObject {
     static SoundSystem soundSystem = new SoundSystem();
     static Game gameSystem;
 
+    static float scrollDistance;
+    static int scrollSpeed = 300;
+
     // Update should be overridden in all children classes; otherwise, use the normal Object class
     public void update(long timeDelta) {
         // Base class does nothing

@@ -20,21 +20,21 @@ public class RenderSystem {
 
     private final static int DRAW_QUEUE_COUNT = 2;
 
-    private RenderObjectManager[] mRenderQueues;
+    private ObjectManager[] mRenderQueues;
     private int mCurrentQueue = 0;
 
     public RenderSystem() {
-        mRenderQueues = new RenderObjectManager[DRAW_QUEUE_COUNT];
+        mRenderQueues = new ObjectManager[DRAW_QUEUE_COUNT];
 
         for (int i = 0; i < DRAW_QUEUE_COUNT; i++) {
-            mRenderQueues[i] = new RenderObjectManager();
+            mRenderQueues[i] = new ObjectManager();
         }
     }
 
     public void generateTextures(Context context) {
         int[] textureID = new int[]{
                 R.drawable.player,      // 0
-                R.drawable.boulder,
+                R.drawable.boulder01,
                 R.drawable.spell01,
                 R.drawable.play_button,
                 R.drawable.home_button,
@@ -51,7 +51,8 @@ public class RenderSystem {
                 R.drawable.nine,    // 15
                 R.drawable.mage01,
                 R.drawable.mage02,
-                R.drawable.mage03
+                R.drawable.mage03,
+                R.drawable.floor01
         };
 
         // Generate Textures, if more needed, alter these numbers.
@@ -80,16 +81,25 @@ public class RenderSystem {
         }
     }
 
+    public void add(GameObject object) {
+        if (object instanceof GameObject) {
+            if (object.getName().equals("Background2") ||
+                    object.getName().equals("Background3") ||
+                    object.getName().equals("Background4") ||
+                    object.getName().equals("Background5") ||
+                    object.getName().equals("Background1")) {
+            //    Log.d(TAG,object.getName() + " added to RenderQueue" + mCurrentQueue + " at " + object.getDebugCounter());
+            }
+        }
+        mRenderQueues[mCurrentQueue].add(object);
+    }
+
     public void swap(GameRenderer renderer) {
         renderer.passToRenderer(mRenderQueues[mCurrentQueue]);
-        //Log.v(TAG, "Current Queue = " + mCurrentQueue);
+       // Log.v(TAG, "Current Queue = " + mCurrentQueue);
 
         mCurrentQueue = (mCurrentQueue + 1) % DRAW_QUEUE_COUNT;
         clearQueue();
-    }
-
-    public void add(GameObject object) {
-        mRenderQueues[mCurrentQueue].add(object);
     }
 
     public void clearQueue() {

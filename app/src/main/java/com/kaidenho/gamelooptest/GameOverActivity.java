@@ -3,6 +3,7 @@ package com.kaidenho.gamelooptest;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -85,24 +86,24 @@ public class GameOverActivity extends Activity {
 
     private void createMenu() {
         // Location given in scaled gameUnits
-        Rect retryButtonlocation = new Rect(
+        RectF retryButtonlocation = new RectF(
                 350,
                 (int)(mScaling.gameHeight / 2 - 100),   // 300 is half of the screen, because gameUnit is divided by 600
                 500,
                 (int)(mScaling.gameHeight / 2 - 250)
         );
 
-        mRetryButton = new GameObject(RETRY_BUTTON_TEXTURE_INDEX, retryButtonlocation, this, "Start Button");
+        mRetryButton = new GameObject(RETRY_BUTTON_TEXTURE_INDEX, retryButtonlocation, "Start Button");
         BaseObject.renderSystem.add(mRetryButton);
 
-        Rect mainMenuButtonlocation = new Rect(
+        RectF mainMenuButtonlocation = new RectF(
                 100,
                 (int)(mScaling.gameHeight / 2 - 100),   // 300 is half of the screen, because gameUnit is divided by 600
                 250,
                 (int)(mScaling.gameHeight / 2 - 250)
         );
 
-        mMainMenuButton = new GameObject(MAIN_MENU_BUTTON_TEXTURE_INDEX, mainMenuButtonlocation, this, "Start Button");
+        mMainMenuButton = new GameObject(MAIN_MENU_BUTTON_TEXTURE_INDEX, mainMenuButtonlocation, "Start Button");
         BaseObject.renderSystem.add(mMainMenuButton);
     }
 
@@ -115,7 +116,7 @@ public class GameOverActivity extends Activity {
             score /= 10;
         }
 
-        Rect scoreLocationRect = new Rect(
+        RectF scoreLocationRect = new RectF(
                 300 + (int)(scoreDigitCount / 2 * 60) - 30,  // each digit is 60 x 60
                 (int)(mScaling.gameHeight / 2) + 60,
                 300 + (int)(scoreDigitCount / 2 * 60) + 30,
@@ -156,9 +157,10 @@ public class GameOverActivity extends Activity {
         }
     }
 
-    public boolean within(float x, float y, Rect rect) {
-     //   Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
-        if (x < rect.left || x > rect.right || y < rect.bottom || y > rect.top) {
+    public boolean within(float x, float y, RectF rect) {
+        //Log.d("Within", "x " + x + ", y " + y + ", left " + rect.left + ", right " + rect.right + ", bottom " + rect.bottom + ", top " + rect.top);
+        if (x < rect.left * mScaling.gameUnit || x > rect.right * mScaling.gameUnit
+                || y < rect.bottom * mScaling.gameUnit || y > rect.top * mScaling.gameUnit) {
             return false;
         }
         return true;

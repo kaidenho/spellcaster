@@ -33,18 +33,27 @@ public class GameRunnable implements Runnable {
             long currentFrameStart = SystemClock.uptimeMillis();
             long previousFrameStart = currentFrameStart;
 
+            long previousTimeDelta = 0;
+            int previousScrollSpeed = 0;
+
             while(mRunning) {
                 // Time at start
                 currentFrameStart = SystemClock.uptimeMillis();
 
                 // Calls update on all the current game objects. See ObjectManager
+                if (previousScrollSpeed != BaseObject.scrollSpeed
+                        || Math.abs((currentFrameStart - previousFrameStart) - previousTimeDelta) > 5) {
+                    BaseObject.scrollDistance = 0 - BaseObject.scrollSpeed * (currentFrameStart - previousFrameStart) / 1000;
+                    previousTimeDelta = (currentFrameStart - previousFrameStart);
+                }
                 mGameRoot.getGameManager().update(currentFrameStart - previousFrameStart);
                 //Log.v(TAG, "Object Update Count is " + mGameManager.getSize());
 
-                // TODO: why aren't the obstacles and spels disappearing at the right time?
                 mGameRoot.getMagicManager().checkCollisions(mGameRoot.getObstacleManager());
 
                 if (mGameRoot.getPlayer().checkCollisions(mGameRoot.getObstacleManager())) {
+                    BaseObject.scrollSpeed = 300;
+
                     // Switch to GameOverActivity
                     Intent intent = new Intent(mGameRoot.getContext(), GameOverActivity.class);
 

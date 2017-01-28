@@ -2,6 +2,7 @@ package com.kaidenho.gamelooptest;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 
 /**
@@ -12,50 +13,44 @@ public class Spell extends GameObject {
     private int mDebugCounter = 0;
     private int m2DebugCounter = 0;
 
-    private static final int MOVEMENT_SPEED = 600;  // pixels per second
+    private static final int MOVEMENT_SPEED = 400;  // pixels per second
 
-    // Image Source constant
+    // Image index find in RenderSystem
     private final static int SPELL_TEXTURE_INDEX = 2;
+
+    // sound index find in SoundSystem
+    private final static int SPELL_SOUND_INDEX = 0;
 
     private boolean mHasCollided = false;
 
-    public Spell(Rect locationRect, Context context) {
-        super(SPELL_TEXTURE_INDEX, locationRect, context, "Spell");
+    public Spell(RectF locationRect) {
+        super(SPELL_TEXTURE_INDEX, locationRect, "Spell");
     }
 
     @Override
     public void update(long timeDelta) {
-        Rect oldLocation = getLocationRect();
-        float movementDistance = MOVEMENT_SPEED * timeDelta / 1000;
+        float movementDistance = timeDelta * MOVEMENT_SPEED / 1000;
 
-        super.setLocationRect(new Rect(
-                oldLocation.left,
-                oldLocation.top + (int)(movementDistance),
-                oldLocation.right,
-                oldLocation.bottom + (int)(movementDistance)
-        ));
-
-        setVertexBuffer(updateLocation(getLocationRect()));
+        getLocationRect().top += movementDistance;
+        getLocationRect().bottom += movementDistance;
 
         BaseObject.renderSystem.add(this);
 
         mDebugCounter++;
         if (mDebugCounter > 20) {
-            Log.d(TAG, "Spell " + m2DebugCounter + " added to drawQueue");
             m2DebugCounter++;
             mDebugCounter = 0;
         }
     }
 
     public void playSound() {
-        // see 'Game' for soundIndexs
-        BaseObject.soundSystem.playSound(0);
+        BaseObject.soundSystem.playSound(SPELL_SOUND_INDEX);
     }
 
     public int checkCollisions(ObjectManager collection) {
         for (int i = 0; i < collection.getSize(); i++) {
             if (collection.get(i) instanceof GameObject) {
-                Rect locationRect = ((GameObject) collection.get(i)).getLocationRect();
+                RectF locationRect = ((GameObject) collection.get(i)).getLocationRect();
 
                 // This collision logic is column-based
                 if (getLocationRect().left >= locationRect.left && getLocationRect().right <= locationRect.right) {

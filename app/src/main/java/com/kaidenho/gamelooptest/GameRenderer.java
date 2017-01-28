@@ -46,7 +46,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         mRenderQueues = new RenderObjectManager[DRAW_QUEUE_COUNT];
 
         for (int i = 0; i < DRAW_QUEUE_COUNT; i++) {
-            mRenderQueues[i] = new RenderObjectManager();
+            mRenderQueues[i] = new RenderObjectManager(mContext);
         }
     }
 
@@ -61,16 +61,19 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         synchronized (mDrawLock) {
             if (mRenderQueues[mCurrentQueue] != null) {
                 //player.draw(mtrxProjectionAndView);
-                mRenderQueues[mCurrentQueue].draw(mtrxProjectionAndView);
+                synchronized (mRenderQueues[mCurrentQueue]) {
+                    mRenderQueues[mCurrentQueue].draw(mtrxProjectionAndView, this);
+                }
 
                 if (mRenderQueues[mCurrentQueue].getSize() < 1) {
-                    Log.d(TAG,"RenderQueue " + mCurrentQueue + " size is " + mRenderQueues[mCurrentQueue].getSize()
-                            + ". Queue " + (mCurrentQueue + 1) % DRAW_QUEUE_COUNT + " size is " + mRenderQueues[(mCurrentQueue + 1) % DRAW_QUEUE_COUNT].getSize());
+               //     Log.d(TAG,"RenderQueue " + mCurrentQueue + " size is " + mRenderQueues[mCurrentQueue].getSize()
+               //             + ". Queue " + (mCurrentQueue + 1) % DRAW_QUEUE_COUNT + " size is " + mRenderQueues[(mCurrentQueue + 1) % DRAW_QUEUE_COUNT].getSize());
                 }
+                //mRenderQueues[mCurrentQueue].printAll();
 
                 mDebugCounter++;
                 if(mDebugCounter > 1000) {
-                    mRenderQueues[mCurrentQueue].printAll();
+
                     mDebugCounter = 0;
                 }
             }
@@ -131,13 +134,15 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    public void passToRenderer(RenderObjectManager renderQueue) {
+    public void passToRenderer(ObjectManager renderQueue) {
         synchronized (mDrawLock) {
             if (renderQueue == null) {
                 throw new NullPointerException();
             }
 
             swap();
+
+        //    Log.d(TAG,"Rendersystem renderqueue size is " + renderQueue.getSize());
 
             mRenderQueues[mCurrentQueue].copy(renderQueue);
 
@@ -151,7 +156,11 @@ public class GameRenderer implements GLSurfaceView.Renderer {
 
     private void swap() {
             mCurrentQueue = (mCurrentQueue + 1) % DRAW_QUEUE_COUNT;
-            mRenderQueues[mCurrentQueue].clear();
-            //Log.d(TAG, "Queues swapped, current queue is " + mCurrentQueue);
+        //    mRenderQueues[mCurrentQueue].clear();
+      //      Log.d(TAG, "Queues swapped, current queue is " + mCurrentQueue);
+    }
+
+    public int getCurrentQueue() {
+        return mCurrentQueue;
     }
 }

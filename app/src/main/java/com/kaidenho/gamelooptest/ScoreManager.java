@@ -99,6 +99,8 @@ public class ScoreManager extends ObjectManager {
                     digitLocationRect.left -= 60;
                     digitLocationRect.right -= 60;
                 }
+                BaseObject.scrollSpeed += 2;
+                Log.d(TAG,"New Scroll speed = " + BaseObject.scrollSpeed);
             }
         }
 

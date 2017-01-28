@@ -47,9 +47,15 @@ public class MagicManager extends ObjectManager {
             int iObjectCollided = spell.checkCollisions(collection);
             if (iObjectCollided >= 0) {
                 Log.d(TAG,"Spell collided with " + ((GameObject) collection.mObjects.get(iObjectCollided)).getName());
-                BaseObject removedObject = collection.remove(iObjectCollided);  // Remove the object the spell hit
-                if (removedObject == null) {
-                    Log.d(TAG,"obstacle not removed");
+                if (collection.get(iObjectCollided) instanceof Obstacle) {
+                    ((Obstacle) collection.get(iObjectCollided)).addToDamageCounter(1);
+                    ((Obstacle) collection.get(iObjectCollided)).checkDamage(collection, iObjectCollided);
+                } else {
+                    BaseObject removedObject = collection.remove(iObjectCollided);  // Remove the object the spell hit
+
+                    if (removedObject == null) {
+                        Log.d(TAG,"obstacle not removed");
+                    }
                 }
                 Log.d(TAG,"Obstacle size is now " + collection.getSize());
                 mObjects.remove(i);                // Remove the spell

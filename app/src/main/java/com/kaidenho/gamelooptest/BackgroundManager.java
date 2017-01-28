@@ -60,8 +60,8 @@ public class BackgroundManager extends ObjectManager {
                     object.getLocationRect().bottom += mObjects.size() / 3 * 200;
                 }
 
-                object.getLocationRect().top += movementDistance;
-                object.getLocationRect().bottom += movementDistance;
+                object.getLocationRect().top += BaseObject.scrollDistance;
+                object.getLocationRect().bottom += BaseObject.scrollDistance;
 
             }
 

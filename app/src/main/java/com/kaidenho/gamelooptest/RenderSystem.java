@@ -34,7 +34,7 @@ public class RenderSystem {
     public void generateTextures(Context context) {
         int[] textureID = new int[]{
                 R.drawable.player,      // 0
-                R.drawable.boulder,
+                R.drawable.boulder01,
                 R.drawable.spell01,
                 R.drawable.play_button,
                 R.drawable.home_button,
@@ -52,7 +52,7 @@ public class RenderSystem {
                 R.drawable.mage01,
                 R.drawable.mage02,
                 R.drawable.mage03,
-                R.drawable.tile
+                R.drawable.floor01
         };
 
         // Generate Textures, if more needed, alter these numbers.
